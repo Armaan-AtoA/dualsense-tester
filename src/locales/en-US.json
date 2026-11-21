@@ -260,6 +260,8 @@
     "rumble_soft": "Rumble (soft)",
     "speaker_volume": "Speaker volume",
     "headphone_volume": "Headphone volume",
+    "sync_triggers": "Sync both triggers",
+    "both_trigger_mode": "Both triggers",
     "left_trigger_mode": "Left trigger",
     "right_trigger_mode": "Right trigger",
     "trigger_mode": {

@@ -20,6 +20,11 @@ const isVercelProduction = process.env.VERCEL_ENV === 'production'
 export default defineConfig(async ({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   return {
+    server: {
+      host: '0.0.0.0',
+      port: 3000,
+      allowedHosts: true,
+    },
     plugins: [
       htmlPlugin(),
       // vueDevTools(),

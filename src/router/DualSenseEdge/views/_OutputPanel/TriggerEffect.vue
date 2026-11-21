@@ -6,7 +6,7 @@ import DouSelect from '@/components/base/DouSelect.vue'
 import SliderBox from '@/components/common/SliderBox.vue'
 
 const props = withDefaults(defineProps<{
-  is?: 'left' | 'right'
+  is?: 'left' | 'right' | 'both'
   struct: OutputStruct
 }>(), {
   is: 'left',
@@ -57,21 +57,21 @@ const frequency = ref(0)
 
 const currentTriggerEffect = computed({
   get: () => {
-    if (props.is === 'left') {
-      return props.struct.adaptiveTriggerLeftMode.value
-    }
-    else {
+    if (props.is === 'right') {
       return props.struct.adaptiveTriggerRightMode.value
     }
+    return props.struct.adaptiveTriggerLeftMode.value
   },
   set: (v) => {
-    if (props.is === 'left') {
-      const refValue = props.struct.adaptiveTriggerLeftMode
-      refValue.value = v
+    if (props.is === 'both') {
+      props.struct.adaptiveTriggerLeftMode.value = v
+      props.struct.adaptiveTriggerRightMode.value = v
+    }
+    else if (props.is === 'left') {
+      props.struct.adaptiveTriggerLeftMode.value = v
     }
     else {
-      const refValue = props.struct.adaptiveTriggerRightMode
-      refValue.value = v
+      props.struct.adaptiveTriggerRightMode.value = v
     }
   },
 })
@@ -82,38 +82,50 @@ const currentTriggerEffectData = computed({
     return [] as number[]
   },
   set: (v) => {
-    let side: 'Left' | 'Right' = 'Left'
-    if (props.is === 'right') {
-      side = 'Right'
-    }
-    for (let i = 0; i < 10; i++) {
-      const _i: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 = i as any
-      const refValue = props.struct[`adaptiveTrigger${side}Param${_i}`]
-      refValue.value = v[i] ?? 0
+    const sides: ('Left' | 'Right')[] = props.is === 'both'
+      ? ['Left', 'Right']
+      : [props.is === 'right' ? 'Right' : 'Left']
+    for (const side of sides) {
+      for (let i = 0; i < 10; i++) {
+        const _i: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 = i as any
+        const refValue = props.struct[`adaptiveTrigger${side}Param${_i}`]
+        refValue.value = v[i] ?? 0
+      }
     }
   },
 })
 
-watch([currentTriggerEffect, startpos, endpos, force, frequency], () => {
-  switch (currentTriggerEffect.value) {
+function readFromStruct(mode: number) {
+  const side: 'Left' | 'Right' = props.is === 'right' ? 'Right' : 'Left'
+  const p0 = props.struct[`adaptiveTrigger${side}Param0`].value
+  const p1 = props.struct[`adaptiveTrigger${side}Param1`].value
+  const p2 = props.struct[`adaptiveTrigger${side}Param2`].value
+  switch (mode) {
     case 0x01:
-      currentTriggerEffectData.value = [startpos.value, force.value]
+      startpos.value = p0
+      force.value = p1
       break
     case 0x02:
-      currentTriggerEffectData.value = [startpos.value, endpos.value, force.value]
+      startpos.value = p0
+      endpos.value = p1
+      force.value = p2
       break
     case 0x06:
-      currentTriggerEffectData.value = [frequency.value, force.value, startpos.value]
-      break
-    default:
-      currentTriggerEffectData.value = []
+      frequency.value = p0
+      force.value = p1
+      startpos.value = p2
       break
   }
-  emit('effectUpdate')
-})
+}
 
-watch(currentTriggerEffect, () => {
-  switch (currentTriggerEffect.value) {
+watch(currentTriggerEffect, (mode, oldMode) => {
+  if (oldMode === undefined) {
+    if (mode !== 0x00) {
+      readFromStruct(mode)
+    }
+    return
+  }
+  switch (mode) {
     case 0x01:
       // resistance
       startpos.value = 40
@@ -134,6 +146,24 @@ watch(currentTriggerEffect, () => {
   }
 }, {
   immediate: true,
+})
+
+watch([currentTriggerEffect, startpos, endpos, force, frequency], () => {
+  switch (currentTriggerEffect.value) {
+    case 0x01:
+      currentTriggerEffectData.value = [startpos.value, force.value]
+      break
+    case 0x02:
+      currentTriggerEffectData.value = [startpos.value, endpos.value, force.value]
+      break
+    case 0x06:
+      currentTriggerEffectData.value = [frequency.value, force.value, startpos.value]
+      break
+    default:
+      currentTriggerEffectData.value = []
+      break
+  }
+  emit('effectUpdate')
 })
 </script>
 

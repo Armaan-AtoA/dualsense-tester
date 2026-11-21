@@ -260,6 +260,8 @@
     "rumble_soft": "震动 (轻)",
     "speaker_volume": "扬声器音量",
     "headphone_volume": "耳机音量",
+    "sync_triggers": "同步两侧扳机",
+    "both_trigger_mode": "自适应扳机（两侧）",
     "left_trigger_mode": "自适应扳机（左）",
     "right_trigger_mode": "自适应扳机（右）",
     "trigger_mode": {

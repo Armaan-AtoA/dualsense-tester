@@ -3,22 +3,21 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bunx --bun vite --host",
-    "build:icon": "bun run --filter 'fancy-controller' build",
+    "dev": "vite --port 3000 --host 0.0.0.0",
+    "build:icon": "npm run build --workspace=fancy-controller",
     "preview": "vite preview",
-    "build": "bunx --bun vite build",
-    "build-only": "bunx --bun vite build",
+    "build": "vite build",
+    "build-only": "vite build",
     "test": "node node_modules/vitest/vitest.mjs run --pool=threads",
     "type-check": "vue-tsc --noEmit -p ./tsconfig.app.json --composite false",
-    "lint": "bunx --bun oxlint . --fix && bunx --bun eslint . --fix",
-    "lint:migrate": "bunx --bun @oxlint/migrate ./eslint.config.mjs"
+    "lint": "npx oxlint . --fix && npx eslint . --fix",
+    "lint:migrate": "npx @oxlint/migrate ./eslint.config.mjs"
   },
   "dependencies": {
     "@unocss/reset": "^66.7.2",
-    "@vercel/speed-insights": "^2.0.0",
     "@vueuse/core": "^14.3.0",
     "consola": "^3.4.2",
-    "fancy-controller": "workspace:*",
+    "fancy-controller": "*",
     "floating-vue": "^5.2.2",
     "lodash-es": "^4.18.1",
     "motion-v": "^1.10.3",
@@ -62,18 +61,7 @@
     "wbn-sign": "^0.3.1",
     "workbox-routing": "^7.4.1"
   },
-  "overrides": {
-    "vite": "^8.0.0-beta.8"
-  },
-  "trustedDependencies": [
-    "@swc/core"
-  ],
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ],
-    "catalog": {
-      "@types/bun": "^1.3.14"
-    }
-  }
+  "workspaces": [
+    "packages/*"
+  ]
 }

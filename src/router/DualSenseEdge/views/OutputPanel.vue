@@ -3,6 +3,7 @@ import type { Ref } from 'vue'
 import type { PlayerLedBrightness } from '@/utils/dualsense/ds.type'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import DouSwitch from '@/components/base/DouSwitch.vue'
 import ColorInput from '@/components/common/ColorInput.vue'
 import GroupedButton from '@/components/common/GroupedButton.vue'
 import SelfResettingSlider from '@/components/common/SelfResettingSlider.vue'
@@ -297,6 +298,20 @@ const motorRight = computed({
 // #endregion
 
 // #region Trigger Effect Update
+const syncTriggers = ref(true)
+
+watch(syncTriggers, (synced) => {
+  if (!synced) {
+    return
+  }
+  struct.adaptiveTriggerRightMode.value = struct.adaptiveTriggerLeftMode.value
+  for (let i = 0; i < 10; i++) {
+    const _i = i as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+    struct[`adaptiveTriggerRightParam${_i}`].value = struct[`adaptiveTriggerLeftParam${_i}`].value
+  }
+  handleTriggerUpdate()
+})
+
 function handleTriggerUpdate() {
   sendOutputReport(() => {
     setValidFlag0(3)
@@ -497,8 +512,21 @@ useEventBusRegister('output:retrieve-headphone-volume', () => {
           </div>
         </td>
       </tr>
-      <TriggerEffect is="left" :struct="struct" @effect-update="handleTriggerUpdate" />
-      <TriggerEffect is="right" :struct="struct" @effect-update="handleTriggerUpdate" />
+      <tr>
+        <td class="label">
+          {{ $t('output_panel.sync_triggers') }}
+        </td>
+        <td class="value">
+          <div>
+            <DouSwitch v-model="syncTriggers" />
+          </div>
+        </td>
+      </tr>
+      <TriggerEffect is="both" v-if="syncTriggers" :struct="struct" @effect-update="handleTriggerUpdate" />
+      <template v-else>
+        <TriggerEffect is="left" :struct="struct" @effect-update="handleTriggerUpdate" />
+        <TriggerEffect is="right" :struct="struct" @effect-update="handleTriggerUpdate" />
+      </template>
       <tr>
         <td class="label">
           {{ $t('output_panel.speaker_volume') }}

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { SpeedInsights } from '@vercel/speed-insights/vue'
 import { domMax, LazyMotion } from 'motion-v'
 import { storeToRefs } from 'pinia'
 import { ConfigProvider } from 'reka-ui'
@@ -31,7 +30,6 @@ useLangSpecFont(locale)
       <ModalContainer />
       <ToastContainer />
       <PWAPrompt />
-      <SpeedInsights />
       <Debug />
       <main>
         <div class="main-container">
